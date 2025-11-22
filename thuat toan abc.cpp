@@ -110,14 +110,11 @@ void onlookerBeePhase() {
         // Chọn nguồn theo xác suất fitness
         double r = ((double)rand() / RAND_MAX) * sumFit;
         double accum = 0;
-        int i;
-
-        for (i = 0; i < FOOD_NUMBER; i++) {
+        for (int i = 0; i < FOOD_NUMBER; i++) {
             accum += foods[i].fitness;
             if (accum >= r) break;
         }
 
-        // Tương tự pha ong thợ
         FoodSource newFood = foods[i];
         int j = rand() % D;
 

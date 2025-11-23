@@ -60,7 +60,8 @@ void employedBeePhase() {
     for (int i = 0; i < FOOD_NUMBER; i++) {
         FoodSource newFood = foods[i]; 
         int j = rand() % D;            
-        do { int k = rand() % FOOD_NUMBER; } while (k == i);
+        int k;
+        do { k = rand() % FOOD_NUMBER; } while (k == i);
         double phi = ((double)rand() / RAND_MAX) * 2 - 1;
         newFood.x[j] = foods[i].x[j] + phi * (foods[i].x[j] - foods[k].x[j]);
         newFood.x[j] = max((double)LOWER, min((double)UPPER, newFood.x[j]));
@@ -86,6 +87,8 @@ void onlookerBeePhase() {
 
         double r = ((double)rand() / RAND_MAX) * sumFit;
         double accum = 0;
+        int i;
+        
         for (int i = 0; i < FOOD_NUMBER; i++) {
             accum += foods[i].fitness;
             if (accum >= r) break;

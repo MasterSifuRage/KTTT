@@ -26,36 +26,29 @@ struct FoodSource {
 FoodSource foods[FOOD_NUMBER];  // Danh sách nguồn thức ăn
 FoodSource bestSolution;        // Lưu nghiệm tốt nhất tìm được
 
-/// Hàm mục tiêu ví dụ (có thể thay đổi tùy bài toán)
-// Ở đây dùng Sphere function f(x) = sum(x_i^2)
+/// Hàm mục tiêu ví dụ (có thể thay đổi tùy bài toán) Sphere function f(x) = sum(x_i^2)
 double objectiveFunction(const vector<double>& x) {
     double sum = 0;
     for (double v : x) sum += v * v;
     return sum;
 }
 
-// Chuyển giá trị f → fitness
-// Fitness càng lớn càng tốt
 double calculateFitness(double f) {
-    if (f >= 0) return 1 / (1 + f);  // Giá trị nhỏ → fitness lớn
+    if (f >= 0) return 1 / (1 + f); 
     return 1 + fabs(f);
 }
 
 // KHỞI TẠO NGẪU NHIÊN QUẦN THỂ
 void initialize() {
     for (int i = 0; i < FOOD_NUMBER; i++) {
-
-        // Random mỗi chiều nghiệm trong [LOWER, UPPER]
         for (int j = 0; j < D; j++) {
             foods[i].x[j] = LOWER + (double)rand() / RAND_MAX * (UPPER - LOWER);
         }
 
-        // Tính giá trị f và fitness ban đầu
         foods[i].f = objectiveFunction(foods[i].x);
         foods[i].fitness = calculateFitness(foods[i].f);
         foods[i].trial = 0;
 
-        // Cập nhật nghiệm tốt nhất ban đầu
         if (i == 0 || foods[i].fitness > bestSolution.fitness) {
             bestSolution = foods[i];
         }
@@ -63,37 +56,21 @@ void initialize() {
 }
 
 // PHA ONG THỢ (Employed Bee Phase)
-// Mỗi ong thợ cải thiện nguồn thức ăn của chính nó
 void employedBeePhase() {
     for (int i = 0; i < FOOD_NUMBER; i++) {
-
-        FoodSource newFood = foods[i]; // Sao chép nghiệm hiện tại
-
-        int j = rand() % D;            // Chọn ngẫu nhiên 1 chiều để thay đổi
-
-        // Chọn 1 nguồn khác k ≠ i
-        int k;
-        do { k = rand() % FOOD_NUMBER; } while (k == i);
-
-        // Hệ số thay đổi ∈ [-1,1]
+        FoodSource newFood = foods[i]; 
+        int j = rand() % D;            
+        do { int k = rand() % FOOD_NUMBER; } while (k == i);
         double phi = ((double)rand() / RAND_MAX) * 2 - 1;
-
-        // Công thức cập nhật nghiệm theo ABC
         newFood.x[j] = foods[i].x[j] + phi * (foods[i].x[j] - foods[k].x[j]);
-
-        // Giữ trong miền tìm kiếm
         newFood.x[j] = max((double)LOWER, min((double)UPPER, newFood.x[j]));
-
-        // Đánh giá nghiệm mới
         newFood.f = objectiveFunction(newFood.x);
         newFood.fitness = calculateFitness(newFood.f);
-
-        // Nếu nghiệm mới tốt hơn → chấp nhận
         if (newFood.fitness > foods[i].fitness) {
             foods[i] = newFood;
             foods[i].trial = 0;
         } else {
-            foods[i].trial++; // tăng số lần thất bại
+            foods[i].trial++; 
         }
     }
 }
@@ -107,7 +84,6 @@ void onlookerBeePhase() {
     int t = 0;
     while (t < FOOD_NUMBER) {
 
-        // Chọn nguồn theo xác suất fitness
         double r = ((double)rand() / RAND_MAX) * sumFit;
         double accum = 0;
         for (int i = 0; i < FOOD_NUMBER; i++) {
@@ -141,12 +117,10 @@ void onlookerBeePhase() {
 }
 
 // PHA ONG DO THÁM (Scout Bee Phase)
-// Nếu nguồn quá lâu không cải thiện → thay mới
 void scoutBeePhase() {
     for (int i = 0; i < FOOD_NUMBER; i++) {
         if (foods[i].trial > LIMIT) {
 
-            // Random lại hoàn toàn
             for (int j = 0; j < D; j++) {
                 foods[i].x[j] = LOWER + (double)rand() / RAND_MAX * (UPPER - LOWER);
             }
@@ -158,7 +132,6 @@ void scoutBeePhase() {
     }
 }
 
-// Lưu nghiệm tốt nhất
 void memorizeBest() {
     for (int i = 0; i < FOOD_NUMBER; i++) {
         if (foods[i].fitness > bestSolution.fitness) {
@@ -169,7 +142,7 @@ void memorizeBest() {
 
 int main() {
     srand(time(NULL));
-    initialize(); // Khởi tạo quần thể ban đầu
+    initialize(); 
     for (int cycle = 0; cycle < MAXCYCLE; cycle++) {
         employedBeePhase();
         onlookerBeePhase();
